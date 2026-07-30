@@ -1,0 +1,43 @@
+name: Unpack HackOS.zip
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  unpack:
+    name: Unpack and commit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure unzip is available
+        run: |
+          if ! command -v unzip >/dev/null 2>&1; then sudo apt-get update && sudo apt-get install -y unzip; fi
+
+      - name: Unzip HackOS.zip
+        run: |
+          if [ ! -f HackOS.zip ]; then echo "HackOS.zip not found at repo root" && exit 1; fi
+          unzip -o HackOS.zip -d .
+
+      - name: Prepare branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B unpack/HackOS
+
+      - name: Commit extracted files
+        run: |
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Unpack HackOS.zip into unpack/HackOS"
+            git push --set-upstream origin unpack/HackOS
+          fi
