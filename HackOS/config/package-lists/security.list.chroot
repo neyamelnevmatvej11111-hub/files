@@ -1,0 +1,43 @@
+# Утилиты для легального пентеста / аудита безопасности.
+# Применять только к СВОИМ системам или по разрешению.
+
+# — Сетевое сканирование и анализ
+nmap
+masscan
+netcat-openbsd
+tcpdump
+wireshark
+tshark
+traceroute
+whois
+dnsutils
+
+# — Веб-тестирование
+nikto
+whatweb
+dirb
+gobuster
+sqlmap
+wapiti
+
+# — Пароли / хэши (аудит стойкости)
+john
+hashcat
+hydra
+
+# — Wi-Fi аудит (только свои сети)
+aircrack-ng
+reaver
+
+# — OSINT / разведка по открытым источникам
+theharvester
+dnsrecon
+fierce
+
+# — Общее
+binwalk
+exiftool
+steghide
+radare2
+ltrace
+strace

@@ -1,0 +1,26 @@
+name: Build HackOS ISO
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y live-build
+
+      - name: Build ISO
+        working-directory: HackOS
+        run: sudo ./build.sh
+
+      - name: Upload ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: HackOS-ISO
+          path: HackOS/hackos-amd64.hybrid.iso
