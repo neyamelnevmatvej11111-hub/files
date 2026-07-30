@@ -13,36 +13,51 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: List repo root (debug)
-        run: ls -la
+      - name: Debug repo root
+        run: |
+          pwd
+          ls -la
+          echo "Finding files up to depth 2:"
+          find . -maxdepth 2 -ls || true
 
-      - name: Unpack HackOS.zip if present
+      - name: Ensure unzip is available
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip
+
+      - name: Unpack HackOS.zip into HackOS directory if present
         run: |
           if [ -f HackOS.zip ]; then
-            echo "Found HackOS.zip — unpacking to ."
-            sudo apt-get update -y
-            sudo apt-get install -y unzip
-            unzip -o HackOS.zip -d .
+            echo "Found HackOS.zip — unpacking into ./HackOS"
+            mkdir -p HackOS
+            unzip -o HackOS.zip -d HackOS
           else
-            echo "HackOS.zip not found in repo root"
+            echo "HackOS.zip not found in repo root, skipping unzip"
           fi
 
       - name: Ensure HackOS directory exists
         run: |
           if [ ! -d HackOS ]; then
-            echo "ERROR: HackOS directory not found after unpack (or missing in branch)."
-            echo "Either put HackOS/ in this branch, or run this workflow on the unpack/HackOS branch, or ensure HackOS.zip is present."
+            echo "ERROR: HackOS directory not found. Either include HackOS/ in the repo or add HackOS.zip to the root."
+            ls -la
             exit 1
           fi
 
-      - name: Install dependencies
+      - name: Show HackOS contents (debug)
+        run: |
+          echo "HackOS contents:"
+          ls -la HackOS || true
+          find HackOS -maxdepth 2 -ls || true
+
+      - name: Install build dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y live-build
 
       - name: Build ISO
         working-directory: HackOS
-        run: sudo bash ./build.sh
+        run: |
+          sudo bash -x ./build.sh
 
       - name: Upload ISO
         uses: actions/upload-artifact@v4
