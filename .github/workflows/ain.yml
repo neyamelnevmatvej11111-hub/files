@@ -8,7 +8,32 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: List repo root (debug)
+        run: ls -la
+
+      - name: Unpack HackOS.zip if present
+        run: |
+          if [ -f HackOS.zip ]; then
+            echo "Found HackOS.zip — unpacking to ."
+            sudo apt-get update -y
+            sudo apt-get install -y unzip
+            unzip -o HackOS.zip -d .
+          else
+            echo "HackOS.zip not found in repo root"
+          fi
+
+      - name: Ensure HackOS directory exists
+        run: |
+          if [ ! -d HackOS ]; then
+            echo "ERROR: HackOS directory not found after unpack (or missing in branch)."
+            echo "Either put HackOS/ in this branch, or run this workflow on the unpack/HackOS branch, or ensure HackOS.zip is present."
+            exit 1
+          fi
 
       - name: Install dependencies
         run: |
@@ -17,7 +42,7 @@ jobs:
 
       - name: Build ISO
         working-directory: HackOS
-        run: sudo ./build.sh
+        run: sudo bash ./build.sh
 
       - name: Upload ISO
         uses: actions/upload-artifact@v4
