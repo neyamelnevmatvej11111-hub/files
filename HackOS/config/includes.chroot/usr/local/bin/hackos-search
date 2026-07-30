@@ -1,0 +1,32 @@
+#!/bin/bash
+# HackOS — обычный поиск в интернете из консоли.
+# Открывает поисковый запрос в DuckDuckGo (без трекеров).
+# Это обычный поиск, А НЕ «пробив» людей.
+set -u
+if [ $# -lt 1 ]; then
+  echo "Использование: hackos-search \"ваш запрос\""
+  echo "Пример: hackos-search \"nmap cheat sheet\""
+  exit 1
+fi
+QUERY="$*"
+# URL-encode через python3
+ENC=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$QUERY")
+DDG="https://duckduckgo.com/?q="
+DDG_LITE="https://lite.duckduckgo.com/lite/?q="
+URL="${DDG}${ENC}"
+LITE="${DDG_LITE}${ENC}"
+
+echo "[*] Запрос: $QUERY"
+if command -v firefox-esr >/dev/null 2>&1 && [ -n "${DISPLAY:-}" ]; then
+  firefox-esr "$URL" >/dev/null 2>&1 &
+  echo "[+] Открыто в браузере."
+else
+  echo "[*] Графики нет — показываю текстовые результаты:"
+  echo
+  curl -s --max-time 12 -A "Mozilla/5.0" "$LITE" \
+    | sed -e 's/<[^>]*>//g' \
+    | grep -v '^[[:space:]]*$' \
+    | sed -n '1,40p'
+  echo
+  echo "Ссылка: $URL"
+fi

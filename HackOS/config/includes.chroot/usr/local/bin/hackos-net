@@ -1,0 +1,24 @@
+#!/bin/bash
+# HackOS — сетевая информация и проверка доступа в интернет
+set -u
+echo "=== Интерфейсы ==="
+ip -brief address 2>/dev/null || ip addr
+echo
+echo "=== Шлюз по умолчанию ==="
+ip route | grep default || echo "(нет маршрута по умолчанию)"
+echo
+echo "=== Внешний IP ==="
+curl -s --max-time 8 https://api.ipify.org || echo "(нет доступа)"
+echo
+echo
+echo "=== Тест интернета ==="
+if ping -c 2 -W 3 1.1.1.1 >/dev/null 2>&1; then
+  echo "Сеть: OK"
+else
+  echo "Сеть: НЕТ пинга"
+fi
+if curl -s --max-time 8 -o /dev/null -w "HTTP %{http_code}\n" https://example.com; then
+  echo "HTTP: OK"
+else
+  echo "HTTP: НЕТ"
+fi

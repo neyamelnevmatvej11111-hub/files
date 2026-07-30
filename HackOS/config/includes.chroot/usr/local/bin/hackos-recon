@@ -1,0 +1,24 @@
+#!/bin/bash
+# HackOS — базовая разведка по ДОМЕНУ (открытые источники)
+set -u
+if [ $# -lt 1 ]; then
+  echo "Использование: hackos-recon <домен>"
+  echo "Пример: hackos-recon example.com"
+  echo
+  echo "⚠  Только для своих доменов или авторизованных целей."
+  exit 1
+fi
+D="$1"
+echo "===== WHOIS: $D ====="
+whois "$D" 2>/dev/null | sed -n '1,25p' || echo "(whois недоступен)"
+echo
+echo "===== DNS A/AAAA/MX/NS ====="
+for T in A AAAA MX NS TXT; do
+  echo "-- $T --"
+  dig +short "$D" "$T" 2>/dev/null || host -t "$T" "$D" 2>/dev/null
+done
+echo
+echo "===== HTTP заголовки ====="
+curl -s -I --max-time 10 "https://$D" || echo "(HTTPS недоступен)"
+echo
+echo "Подсказка: глубже — theHarvester -d $D -b all  |  dnsrecon -d $D  |  whatweb $D"

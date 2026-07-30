@@ -1,0 +1,7 @@
+# Опциональный лёгкий рабочий стол (запуск через startx).
+# По умолчанию система грузится в консоль — см. autologin.
+xserver-xorg
+xinit
+xfce4
+xfce4-terminal
+firefox-esr

@@ -1,0 +1,16 @@
+#!/bin/bash
+# HackOS — быстрый скан портов (обёртка над nmap)
+set -u
+if [ $# -lt 1 ]; then
+  echo "Использование: hackos-scan <IP или домен> [доп. аргументы nmap]"
+  echo "Пример: hackos-scan 192.168.1.10"
+  echo
+  echo "⚠  Сканируй только свои хосты или те, на которые есть разрешение."
+  exit 1
+fi
+TARGET="$1"; shift || true
+if ! command -v nmap >/dev/null 2>&1; then
+  echo "nmap не установлен."; exit 1
+fi
+echo "[*] Скан цели: $TARGET"
+nmap -sV -T4 --top-ports 1000 "$@" "$TARGET"
